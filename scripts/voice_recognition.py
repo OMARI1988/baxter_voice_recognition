@@ -20,16 +20,17 @@ from std_msgs.msg import (
 from baxter_core_msgs.msg import (
     CollisionAvoidanceState,
 )
+from baxter_demos.msg import obj_hypotheses
 
 def Tuck_arms(tuck):
     #tuck_group.add_argument("-t", "--tuck", dest="tuck",
     #tuck_group.add_argument("-u", "--untuck", dest="untuck",
 
     rospy.loginfo("Initializing node... ")
-    rospy.init_node("rsdk_tuck_arms")
+    #rospy.init_node("rsdk_tuck_arms")
     rospy.loginfo("%sucking arms" % ("T" if tuck else "Unt",))
     tucker = Tuck(tuck)
-    rospy.on_shutdown(tucker.clean_shutdown)
+    #rospy.on_shutdown(tucker.clean_shutdown)
     tucker.supervised_tuck()
     rospy.loginfo("Finished tuck")
 #------------------------------------------------------------------#
@@ -228,7 +229,7 @@ class Tuck(object):
                 self._tuck_rate.sleep()
 #------------------------------------------------------------------#
 def enable_robot(act):
-    rospy.init_node('rsdk_robot_enable')
+    #rospy.init_node('rsdk_robot_enable')
     rs = baxter_interface.RobotEnable(CHECK_VERSION)
 
     if act == 'state':
@@ -272,24 +273,42 @@ def handler(fileName):
 		os.remove(fileName)
 		os.remove(cfileName)
 
+		all_words = phrase.split(' ')
+		words = phrase.split(' ')
+		for i in range(len(words)):
+			words[i] = str(words[i])
+			all_words[i] = str(all_words[i])
+			print all_words[i]
+
 		print 'the phrase is:',phrase
-		if phrase == 'lucas':
-			speak('Hello, sir.')
-			#enable_robot('enable')
-		if phrase == 'wake up':
+
+		if 'wake' in words:
 			speak('Ready to work!, sir.')
 			Tuck_arms(False)
-		if phrase == 'sleep':
+
+		elif 'sleep' in words:
 			speak('Going to sleep!, sir.')
 			Tuck_arms(True)
-		if phrase == 'introduce yourself':
-			speak('Hello! Welcome to the school of computing, my name is Lucas. Which stands for. Leeds university cognative artificial system. Researchers here in leeds are teaching me how to become a smarter robot! so that I can help humans in their daily activities! One of the many interesting things I can do is, you can ask me to pick up an object and I will pick it up for you! Please try and ask me to pick something!')
+
+		elif 'yourself' in words:
+			speak('Welcome to the school of computing! my name is Lucas. Which stands for. Leeds university cognative artificial system. Researchers here in leeds are teaching me how to become a smarter robot! so that I can help humans in their daily activities! One of the many interesting things I can do is, you can ask me to pick up an object and I will pick it up for you! Please try and ask me to pick something!')
+
+		elif 'pick' in words or 'picked' in words:
+			speak('going to pick up the object')
+			print 'pick detected'
+			pub2.publish(all_words,[],[],[],[],[],[],[],[])
+
+		elif 'lucas' in words or 'hello' in words:
+			speak('Hello, sir.')
+			
 		
 	except Exception, e:
 		print "Unexpected error:", sys.exc_info()[0], e
 	return True
 
 
+pub2 = rospy.Publisher('obj_manipulation_voice', obj_hypotheses, queue_size=1)
+rospy.init_node('Voice_recognition')
 mic = psw.Microphone()
 print 'sampling...'
 sample = np.array(mic.sample(200))
