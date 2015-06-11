@@ -24,7 +24,7 @@ class Speech:
 	def __init__(self, lang):
 		self.lang = lang
 
-	def getText(self, fileName, show_all = False):
+	def getText(self, fileName, show_all = True):
 		#key = "AIzaSyBOti4mM-6x9WDnZIjIeyEU21OpBXqWBgw"
 		key = "AIzaSyCuu688-4Q4zFtEMzvJNdsAe5kjass0ZP4"
 
@@ -45,6 +45,7 @@ class Speech:
 		response_text = response.read().decode("utf-8")
 		#print 'the response is: ',response_text
 
+
 		# ignore any blank blocks
 		actual_result = []
 		for line in response_text.split("\n"):
@@ -56,6 +57,18 @@ class Speech:
 		# make sure we have a list of transcriptions
 		if "alternative" not in actual_result:
 			raise LookupError("Speech is unintelligible")
+		"""
+		print 'actual_result: ',actual_result
+		print '----------------------------------------------'
+
+
+
+		for prediction in actual_result["alternative"]:
+			print prediction["transcript"]
+			print '************'
+		print '----------------------------------------------'
+		"""
+
 
 		# return the best guess unless told to do otherwise
 		if not show_all:

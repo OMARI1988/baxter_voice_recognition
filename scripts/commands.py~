@@ -14,8 +14,8 @@ player.init()
 
 import subprocess
 from grooveshark import Client
-#songClient = Client()
-#songClient.init()
+songClient = Client()
+songClient.init()
 
 from sets import Set
 
